@@ -18,7 +18,6 @@ var con = mysql.createConnection({
 
 con.connect(function(err) {
   if (err) throw err;
-  console.log("Connected!");
   const createTable = `CREATE TABLE IF NOT EXISTS registered_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(30) NOT NULL,
@@ -33,11 +32,9 @@ con.connect(function(err) {
   
   con.query("CREATE DATABASE IF NOT EXISTS registration", function (err, result) {
     if (err) throw err;
-    console.log("Database created");
   });
   con.query(createTable, function (err, result) {
     if (err) throw err;
-    console.log("Table created");
   });
 });
 
@@ -94,8 +91,8 @@ app.post(
       )`;
     con.query(sql, function (err, result) {
       if (err) throw err;
-      console.log("1 record inserted");
       con.query('SELECT LAST_INSERT_ID()', (err, result) => {
+        if (err) throw err;
         res.send(result[0]);
       })
     });
@@ -106,15 +103,15 @@ app.get(
   (req, res) => {
     if(req.query.id) {
       con.query(`SELECT * FROM registered_users WHERE id=${req.query.id}`, (err, result) => {
+        if (err) throw err;
         res.send(result[0]);
       });
     } else {
       con.query(`SELECT * FROM registered_users`, (err, result) => {
+        if (err) throw err;
         res.send(result);
       });
     }
   });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+app.listen(port);
