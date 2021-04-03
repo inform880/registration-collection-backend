@@ -27,7 +27,8 @@ con.connect(function(err) {
     city VARCHAR(50) NOT NULL,
     state VARCHAR(30) NOT NULL,
     zip VARCHAR(10) NOT NULL,
-    country VARCHAR(30) NOT NULL
+    country VARCHAR(30) NOT NULL,
+    datetime DATETIME NOT NULL
   )`
   
   con.query("CREATE DATABASE IF NOT EXISTS registration", function (err, result) {
@@ -69,6 +70,9 @@ app.post(
   checkRules,
   (req, res) => {
     const { firstname, lastname, address1, address2 = "", city, state, zip, country } = req.body;
+    const timestamp = new Date();
+    const newTimestamp = 
+      `${timestamp.toISOString().split('T')[0]} ${timestamp.toTimeString().split(' ')[0]}`;
     var sql = `INSERT INTO registered_users (
         firstname,
         lastname,
@@ -77,7 +81,8 @@ app.post(
         city,
         state,
         zip,
-        country
+        country,
+        datetime
       ) 
       VALUES (
         "${firstname}",
@@ -87,7 +92,8 @@ app.post(
         "${city}",
         "${state}",
         "${zip}",
-        "${country}"
+        "${country}",
+        "${newTimestamp}"
       )`;
     con.query(sql, function (err, result) {
       if (err) throw err;
@@ -109,7 +115,9 @@ app.get(
     } else {
       con.query(`SELECT * FROM registered_users`, (err, result) => {
         if (err) throw err;
-        res.send(result);
+        res.send(result.sort((a, b) => 
+          new Date(b.datetime).valueOf() - new Date(a.datetime).valueOf()
+        ));
       });
     }
   });
